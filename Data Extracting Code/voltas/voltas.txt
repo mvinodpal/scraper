@@ -1,0 +1,20 @@
+http://www.voltasac.com/index.php?option=com_stlocator&view=seachresult&Itemid=25
+
+----------------------------------
+
+
+http://www.voltasac.com/index.php?option=com_stlocator&view=list&Itemid=80&st=10&ct=345
+
+
+
+-----------------------------------
+
+Form Link Action = Method is POST
+
+http://www.voltasac.com/index.php?option=com_stlocator&view=seachresult&Itemid=25
+
+http://www.voltasac.com/index.php?option=com_stlocator&view=seachresult&Itemid=25
+
+
+select = name = state_id = 10 (Bihar)
+select = name = city_id = 
