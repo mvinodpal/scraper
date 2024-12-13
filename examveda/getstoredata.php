@@ -62,40 +62,73 @@ function scrapeWebsite($url,$id) {
 
     if (curl_errno($ch)) {  
         global $pdo;      
-        $pdo->query("UPDATE  `scraped_links` set `status` =8 WHERE id=$id");
+        $pdo->query("UPDATE  `scraped_links` set `status` =4 WHERE id=$id");
+        header("Location: http://localhost/it/scraper/examveda/getstoredata.php");
         die("cURL error: " . curl_error($ch));
     }
 
     curl_close($ch);
-    $data=trim(extstres($html,'<!-- Desktop-->',""));
-    print_r($data);
-    
-   // print_r($html);
-    die("hhhhhhhhhhh");
-    return $html;
+    $data=trim(extstres($html,'<div class="breadcrumbs">','<!-- Question Page Middle -->'));
+    return $data;
 }
 
 // Function to extract all links from HTML
 function extractData($html, $base_url) {
-    $dom = new DOMDocument();
-    @$dom->loadHTML($html);
+    global $pdo;   
+   // $i=0;  
+    $title=trim(extstres($html,'<h1>',"</h1>"));
+    $response_locality_array = explode('<article class="question single-question question-type-normal">',$html);    
+    foreach($response_locality_array as $rla){ 
+       $i=trim(extstres($rla,'<input type="radio" name="poll-radio-','"'));    
+       if(!$i){$i=0;}  
+       $question=trim(extstres($rla,'<div class="question-main">',"</div>"));
+       $o1=trim(extstres($rla,'<label for="poll-'.$i.'-1">',"</label>"));
+       $o2=trim(extstres($rla,'<label for="poll-'.$i.'-2">',"</label>"));
+       $o3=trim(extstres($rla,'<label for="poll-'.$i.'-3">',"</label>"));
+       $o4=trim(extstres($rla,'<label for="poll-'.$i.'-4">',"</label>"));
+       $a=trim(extstres($rla,'value="','"'));        
+     $sql = "INSERT INTO `scraped_examveda_data` (`url`, `title`,`qes`, `o1`, `o2`, `o3`, `o4`,  `ans1`) VALUES ('$base_url', '$title','$question', '$o1', '$o2', '$o3', '$o4',  '$a')"; 
+     if($question !='' && $o1 !='' ){
+    echo '<hr/>--------------'.$sql;  
+    $stmt = $pdo->prepare("INSERT INTO scraped_examveda_data (`url`, `title`, `qes`, `o1`, `o2`, `o3`, `o4`, `ans1`) 
+    VALUES (:url, :title, :qes, :o1, :o2, :o3, :o4, :ans1)");
 
-    $xpath = new DOMXPath($dom);
-    $links = $xpath->query("//a[@href]");
-    $extractedLinks = [];
+    $stmt->bindParam(':url', $base_url);
+    $stmt->bindParam(':title', $title);
+    $stmt->bindParam(':qes', $question);
+    $stmt->bindParam(':o1', $o1);
+    $stmt->bindParam(':o2', $o2);
+    $stmt->bindParam(':o3', $o3); // Corrected the parameter name
+    $stmt->bindParam(':o4', $o4);
+    $stmt->bindParam(':ans1', $a);
 
-    foreach ($links as $link) {
-        $href = $link->getAttribute('href');
-
-        // Convert relative URLs to absolute URLs
-        $absoluteUrl = filter_var($href, FILTER_VALIDATE_URL) ? $href : resolveRelativeUrl($href, $base_url);
-
-        if (!empty($absoluteUrl)) {
-            $extractedLinks[] = $absoluteUrl;
-        }
+    $stmt->execute();
+     }
+   //  $i++;
     }
+    
+    print_r($response_locality_array);
 
-    return array_unique($extractedLinks);
+    // die("333333");
+    // $dom = new DOMDocument();
+    // @$dom->loadHTML($html);
+
+    // $xpath = new DOMXPath($dom);
+    // $links = $xpath->query("//a[@href]");
+    // $extractedLinks = [];
+
+    // foreach ($links as $link) {
+    //     $href = $link->getAttribute('href');
+
+    //     // Convert relative URLs to absolute URLs
+    //     $absoluteUrl = filter_var($href, FILTER_VALIDATE_URL) ? $href : resolveRelativeUrl($href, $base_url);
+
+    //     if (!empty($absoluteUrl)) {
+    //         $extractedLinks[] = $absoluteUrl;
+    //     }
+    // }
+
+    // return array_unique($extractedLinks);
 }
 
 // Function to resolve relative URLs
@@ -116,20 +149,20 @@ function storeLinks($pdo, $links) {
         }
     }
 }
-$result = $pdo->query("select * from `scraped_links` where `status` =2  order by id asc LIMIT 1");
+$result = $pdo->query("select * from `scraped_links` where `status` =5  order by id asc LIMIT 1");
 $rows = $result->fetchAll();
 $id=0;
 $url="";
 foreach($rows as $row) {
     $id=$row['id'];
     $url=trim($row['url']);
-  //  $pdo->query("UPDATE  `scraped_links` set `status` =3 WHERE id=$id");
+    $pdo->query("UPDATE  `scraped_links` set `status` =3 WHERE id=$id");
 }
 echo '<h1>'.$id.':::'.$url.'</h1>';
 
 // Main logic
-$website_url = "https://www.examveda.com/arithmetic-ability/practice-mcq-question-on-average/"; // Replace with the target URL
-//$website_url = $url; // Replace with the target URL
+//$website_url = "https://www.examveda.com/arithmetic-ability/practice-mcq-question-on-average/"; // Replace with the target URL
+$website_url = $url; // Replace with the target URL
 echo $website_url;
 
 // Step 1: Scrape the website
@@ -139,7 +172,7 @@ $html = scrapeWebsite($website_url,$id);
 $links = extractData($html, $website_url);
 
 // Step 3: Store links in the database
-storeLinks($pdo, $links);
+//storeLinks($pdo, $links);
 $output = [];
 $returnCode = 0;
 exec('ipconfig /flushdns', $output, $returnCode);
@@ -148,5 +181,5 @@ sleep(20);
 ob_end_flush();
 ?>
 <script>
-   // window.location.href = "http://localhost/it/scraper/examveda/getstoredata.php?id=1";
+    window.location.href = "http://localhost/it/scraper/examveda/getstoredata.php?id=1";
 </script>

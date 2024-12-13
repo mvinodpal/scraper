@@ -57,6 +57,7 @@ function scrapeWebsite($url,$id) {
     if (curl_errno($ch)) {  
         global $pdo;      
         $pdo->query("UPDATE  `scraped_links` set `status` =8 WHERE id=$id");
+        header("Location: http://localhost/it/scraper/examveda/githtml.php");
         die("cURL error: " . curl_error($ch));
     }
 
@@ -133,7 +134,7 @@ storeLinks($pdo, $links);
 $output = [];
 $returnCode = 0;
 exec('ipconfig /flushdns', $output, $returnCode);
-sleep(20);
+sleep(10);
 //header("Location: http://localhost/it/scraper/examveda/githtml.php?".$id);
 ob_end_flush();
 ?>
