@@ -82,7 +82,10 @@ function extractLinks($html, $base_url) {
         $absoluteUrl = filter_var($href, FILTER_VALIDATE_URL) ? $href : resolveRelativeUrl($href, $base_url);
 
         if (!empty($absoluteUrl)) {
-            $extractedLinks[] = $absoluteUrl;
+            if (str_contains(strtolower($absoluteUrl), strtolower('examveda'))) {
+                $extractedLinks[] = $absoluteUrl;
+            }  
+         
         }
     }
 
