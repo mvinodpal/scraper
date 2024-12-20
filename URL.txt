@@ -1,0 +1,8 @@
+https://www.indiabix.com/non-verbal-reasoning/series/
+
+http://localhost/it/scraper/indiabix/githtml.php?id=1
+
+http://localhost/it/scraper/examveda/githtml.php
+
+
+http://localhost/it/scraper/examveda/getstoredata.php?id=1
