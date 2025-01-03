@@ -231,7 +231,7 @@ function storeLinks($pdo, $links) {
         }
     }
 }
-$result = $pdo->query("select * from `scraped_indiabix_links` where `status` =2  order by id asc LIMIT 1");
+$result = $pdo->query("select * from `scraped_indiabix_links` where `status` =0  order by id asc LIMIT 1");
 $rows = $result->fetchAll();
 $id=0;
 $url="";
